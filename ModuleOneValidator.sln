@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Validator", "Validator\Validator.csproj", "{DBCFB421-4EB2-492D-A247-2C3BD611CF8F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidatorTests", "ValidatorTests\ValidatorTests.csproj", "{798855C8-4A42-4333-BFA1-1EF3306B31C4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DBCFB421-4EB2-492D-A247-2C3BD611CF8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBCFB421-4EB2-492D-A247-2C3BD611CF8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBCFB421-4EB2-492D-A247-2C3BD611CF8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBCFB421-4EB2-492D-A247-2C3BD611CF8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{798855C8-4A42-4333-BFA1-1EF3306B31C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{798855C8-4A42-4333-BFA1-1EF3306B31C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{798855C8-4A42-4333-BFA1-1EF3306B31C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{798855C8-4A42-4333-BFA1-1EF3306B31C4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
