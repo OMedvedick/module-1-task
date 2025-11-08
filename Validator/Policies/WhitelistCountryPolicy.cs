@@ -15,7 +15,7 @@ namespace Validator.Policies
 
         public WhitelistCountryPolicy(IEnumerable<string> allowedCountries)
         {
-            _allowedCountries = new HashSet<string>(allowedCountries);
+            _allowedCountries = new HashSet<string>(allowedCountries); //Сюда можно поместитить любой список стран, например "БЕЛАРУСЬ" или "РОССИЯ")
 
         }
 
