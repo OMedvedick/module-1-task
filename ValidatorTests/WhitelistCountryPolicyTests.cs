@@ -8,15 +8,14 @@ public class WhitelistCountryPolicyTests
 {
 
     private readonly List<string> _allowedCountries =
-        new List<string> { "USA", "Canada", "Germany" };
+        new List<string> { "БЕЛАРУСЬ", "РОССИЯ", };
 
 
 
 
 
-    [TestCase("USA")]
-    [TestCase("Canada")]
-    [TestCase("Germany")]
+    [TestCase("БЕЛАРУСЬ")]
+    [TestCase("РОССИЯ")]
     public void IsAllowed_WhenCountryIsExactMatch_ShouldReturnTrueAndNoErrors(string testCountry)
     {
 
@@ -39,6 +38,8 @@ public class WhitelistCountryPolicyTests
     [TestCase("gErMaNy")]
     [TestCase("CANADA")]
     [TestCase("Germany  ")]
+    [TestCase("БЕЛАРУСЬ ")]
+    [TestCase("РОССИЯ  ")]
     public void IsAllowed_WhenCountryIsNotExactMatch_ShouldReturnFalseAndError(string testCountry)
     {
 
