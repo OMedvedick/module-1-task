@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Validator.Interfaces.Policies;
+using Validator.Interfaces;
 
 namespace Validator.Policies
 {
-    public class AccountNamePolicy : IAccountNamePolicy
+    public class AccountNamePolicy : IDataPolicy<string>
     {
         private readonly int _minLength;
 

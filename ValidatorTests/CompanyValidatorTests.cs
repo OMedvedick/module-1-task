@@ -8,26 +8,24 @@ using FluentValidation.TestHelper;
 using Moq;
 using NUnit.Framework;
 using Validator.Data.Records;
+using Validator.Interfaces; // Changed
 using Validator.Interfaces.Data;
-using Validator.Interfaces.Policies;
 using Validator.Validators;
 
 [TestFixture]
 public class CompanyValidatorTests
 {
-    private Mock<ICountryPolicy> _mockCountryPolicy;
-    private Mock<IAccountNamePolicy> _mockAccountPolicy;
-    private Mock<ICityPolicy> _mockCityPolicy;
+    private Mock<IDataPolicy<string>> _mockCountryPolicy;
+    private Mock<IDataPolicy<string>> _mockAccountPolicy;
+    private Mock<IDataPolicy<string>> _mockCityPolicy;    
     private CompanyValidator _validator;
 
     [SetUp]
     public void SetUp()
     {
-
-        _mockCountryPolicy = new Mock<ICountryPolicy>();
-        _mockAccountPolicy = new Mock<IAccountNamePolicy>();
-        _mockCityPolicy = new Mock<ICityPolicy>();
-
+        _mockCountryPolicy = new Mock<IDataPolicy<string>>();
+        _mockAccountPolicy = new Mock<IDataPolicy<string>>(); 
+        _mockCityPolicy = new Mock<IDataPolicy<string>>();    
 
         _mockCountryPolicy.Setup(p => p.IsAllowed(It.IsAny<string>()))
                            .Returns((true, Enumerable.Empty<string>()));
@@ -38,32 +36,23 @@ public class CompanyValidatorTests
         _mockCityPolicy.Setup(p => p.IsAllowed(It.IsAny<string>()))
                            .Returns((true, Enumerable.Empty<string>()));
 
-
         _validator = new CompanyValidator(
             _mockCountryPolicy.Object,
             _mockAccountPolicy.Object,
             _mockCityPolicy.Object);
     }
 
-
-
-
     [Test]
     public void Validate_WhenAllPoliciesPass_ShouldNotHaveAnyValidationErrors()
     {
-
         var company = CreateStubCompany("ValidName", "ValidCity", "ValidCountry");
-
-
         var result = _validator.TestValidate(company);
-
-
         result.ShouldNotHaveAnyValidationErrors();
     }
+
     [Test]
     public void Validate_WhenCountryPolicyFails_ShouldHaveValidationErrorForCountry()
     {
-
         var testCountry = "FORBIDDEN_LAND";
         var expectedError = "Страна 'FORBIDDEN_LAND' запрещена.";
 
@@ -72,10 +61,7 @@ public class CompanyValidatorTests
             .Returns((false, new[] { expectedError }));
 
         var company = CreateStubCompany("ValidName", "ValidCity", testCountry);
-
-
         var result = _validator.TestValidate(company);
-
 
         result.ShouldHaveValidationErrorFor(c => c.Country)
               .WithErrorMessage(expectedError);
@@ -84,13 +70,9 @@ public class CompanyValidatorTests
         result.ShouldNotHaveValidationErrorFor(c => c.City);
     }
 
-
-
-
     [Test]
     public void Validate_WhenCityPolicyFails_ShouldHaveValidationErrorForCity()
     {
-
         var testCity = "BAD_CITY";
         var expectedError = "Город не найден.";
 
@@ -99,22 +81,15 @@ public class CompanyValidatorTests
             .Returns((false, new[] { expectedError }));
 
         var company = CreateStubCompany("ValidName", testCity, "ValidCountry");
-
-
         var result = _validator.TestValidate(company);
-
 
         result.ShouldHaveValidationErrorFor(c => c.City)
               .WithErrorMessage(expectedError);
     }
 
-
-
-
     [Test]
     public void Validate_WhenAccountNamePolicyFails_ShouldHaveValidationErrorForAccountName()
     {
-
         var testName = "INVALID";
         var expectedError = "Имя 'INVALID' уже занято.";
 
@@ -123,23 +98,15 @@ public class CompanyValidatorTests
             .Returns((false, new[] { expectedError }));
 
         var company = CreateStubCompany(testName, "ValidCity", "ValidCountry");
-
-
         var result = _validator.TestValidate(company);
-
 
         result.ShouldHaveValidationErrorFor(c => c.AccountName)
               .WithErrorMessage(expectedError);
     }
 
-
-
-
-
     [Test]
     public void Validate_WhenMultiplePoliciesFail_ShouldHaveAllErrors()
     {
-
         var countryError = "Запрещенная страна";
         var nameError = "Запрещенное имя";
 
@@ -152,13 +119,7 @@ public class CompanyValidatorTests
             .Returns((false, new[] { nameError }));
 
         var company = CreateStubCompany("BAD_NAME", "ValidCity", "BAD_COUNTRY");
-
-
         var result = _validator.TestValidate(company);
-
-
-
-
 
         Assert.That(result.Errors.Count, Is.EqualTo(2));
 
@@ -166,37 +127,39 @@ public class CompanyValidatorTests
         result.ShouldHaveValidationErrorFor(c => c.AccountName).WithErrorMessage(nameError);
     }
 
+        [Test]
 
+        public void Validate_WhenPolicyFailsWithoutMessage_ShouldAddValidationError()
 
+        {
 
+            var testCountry = "BUGGY_POLICY_COUNTRY";
 
+            var expectedErrorMessage = $"Validation policy for 'Country' returned 'invalid' status with no error messages.";
 
-    [Test]
-    public void Validate_WhenPolicyFailsWithoutMessage_ShouldThrowInvalidOperationException()
-    {
+    
 
-        var testCountry = "BUGGY_POLICY_COUNTRY";
+            _mockCountryPolicy
 
+                .Setup(p => p.IsAllowed(testCountry))
 
-        _mockCountryPolicy
-            .Setup(p => p.IsAllowed(testCountry))
-            .Returns((false, Enumerable.Empty<string>()));
+                .Returns((false, Enumerable.Empty<string>()));
 
-        var company = CreateStubCompany("ValidName", "ValidCity", testCountry);
+    
 
+            var company = CreateStubCompany("ValidName", "ValidCity", testCountry);
 
+    
 
+            var result = _validator.TestValidate(company);
 
-        var ex = Assert.Throws<InvalidOperationException>(() =>
-            _validator.TestValidate(company)
-        );
+    
 
+            result.ShouldHaveValidationErrorFor(c => c.Country)
 
+                  .WithErrorMessage(expectedErrorMessage);
 
-        Assert.That(ex.Message, Does.Contain("Country"));
-        Assert.That(ex.Message, Does.Contain("with no error messages"));
-    }
-
+        }
 
     private ICompanyData CreateStubCompany(string name, string city, string country)
     {
@@ -213,7 +176,6 @@ public class CompanyValidatorTests
     [Test]
     public void Test_Fields_Normalization()
     {
-
         var company = new Company
         {
             AccountName = "validName",
@@ -226,10 +188,9 @@ public class CompanyValidatorTests
         company.Country.Should().BeUpperCased();
     }
 
-        [Test]
+    [Test]
     public void Test_ToString_Normization()
     {
-
         var company = new Company
         {
             AccountName = "validName",
@@ -239,5 +200,4 @@ public class CompanyValidatorTests
 
         Assert.That(company.ToString(), Is.EqualTo("VALIDNAME в городе VALIDCITY, VALIDCOUNTRY"));
     }
-    
 }

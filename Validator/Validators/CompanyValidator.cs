@@ -1,53 +1,49 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using FluentValidation;
-using Validator.Data;
+using Validator.Interfaces;
 using Validator.Interfaces.Data;
-using Validator.Interfaces.Policies;
 
 namespace Validator.Validators
 {
     public class CompanyValidator : AbstractValidator<ICompanyData>
     {
+        private readonly IDataPolicy<string> _countryPolicy;
+        private readonly IDataPolicy<string> _accountNamePolicy;
+        private readonly IDataPolicy<string> _cityPolicy;
 
-        private readonly ICountryPolicy _countryPolicy;
-        private readonly IAccountNamePolicy _accountNamePolicy;
-        private readonly ICityPolicy _cityPolicy;
-
-        public CompanyValidator(ICountryPolicy countryPolicy,
-                                IAccountNamePolicy accountNamePolicy,
-                                ICityPolicy cityPolicy)
+        public CompanyValidator(IDataPolicy<string> countryPolicy,
+                                IDataPolicy<string> accountNamePolicy,
+                                IDataPolicy<string> cityPolicy)
         {
-
             _countryPolicy = countryPolicy ?? throw new ArgumentNullException(nameof(countryPolicy));
             _accountNamePolicy = accountNamePolicy ?? throw new ArgumentNullException(nameof(accountNamePolicy));
             _cityPolicy = cityPolicy ?? throw new ArgumentNullException(nameof(cityPolicy));
 
-
             RuleFor(x => x.AccountName)
                 .Custom((accountName, context) =>
                 {
-
-                    ApplyPolicy(accountName, context, _accountNamePolicy.IsAllowed, "AccountName");
+                    ApplyPolicy(accountName, context, _accountNamePolicy.IsAllowed);
                 });
 
             RuleFor(x => x.City)
                 .Custom((city, context) =>
                 {
-                    ApplyPolicy(city, context, _cityPolicy.IsAllowed, "City");
+                    ApplyPolicy(city, context, _cityPolicy.IsAllowed);
                 });
 
             RuleFor(x => x.Country)
                 .Custom((country, context) =>
                 {
-                    ApplyPolicy(country, context, _countryPolicy.IsAllowed, "Country");
+                    ApplyPolicy(country, context, _countryPolicy.IsAllowed);
                 });
         }
-
 
         private void ApplyPolicy(
             string propertyValue,
             ValidationContext<ICompanyData> context,
-            Func<string, (bool isValid, IEnumerable<string> errors)> policyMethod,
-            string propertyName)
+            Func<string, (bool isValid, IEnumerable<string> errors)> policyMethod)
         {
             var (isValid, errorMessages) = policyMethod(propertyValue);
 
@@ -56,20 +52,14 @@ namespace Validator.Validators
                 return;
             }
 
-
             if (errorMessages != null && errorMessages.Any())
             {
-                foreach (var message in errorMessages)
-                {
-                    context.AddFailure(message);
-                }
+                errorMessages.ToList().ForEach(message => context.AddFailure(message));
             }
             else
             {
-                throw new InvalidOperationException(
-                 $"Validation policy for '{propertyName}' returned 'invalid' status " +
-                 $"with no error messages.");
-
+                context.AddFailure(
+                $"Validation policy for '{context.PropertyName}' returned 'invalid' status with no error messages.");
             }
         }
     }

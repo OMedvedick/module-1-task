@@ -1,24 +1,16 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Validator.Interfaces.Policies;
+using Validator.Interfaces;
 
 namespace Validator.Policies
 {
-    public class WhitelistCountryPolicy : ICountryPolicy
+    public class WhitelistCountryPolicy : IDataPolicy<string>
     {
-
         private readonly HashSet<string> _allowedCountries;
-
-
 
         public WhitelistCountryPolicy(IEnumerable<string> allowedCountries)
         {
             _allowedCountries = new HashSet<string>(allowedCountries);
-
         }
-
 
         public (bool isValid, IEnumerable<string> errors) IsAllowed(string countryName)
         {
@@ -29,8 +21,6 @@ namespace Validator.Policies
                 errors.Add($"Country {countryName} is not allowed");
             }
             return (isValid, errors);
-
         }
-
     }
 }

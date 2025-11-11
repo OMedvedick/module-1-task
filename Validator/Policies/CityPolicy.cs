@@ -1,12 +1,9 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Validator.Interfaces.Policies;
+using Validator.Interfaces;
 
 namespace Validator.Policies
 {
-    public class CityPolicy : ICityPolicy
+    public class CityPolicy : IDataPolicy<string>
     {
         public (bool isValid, IEnumerable<string> errors) IsAllowed(string cityName)
         {
